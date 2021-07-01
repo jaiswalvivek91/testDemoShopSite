@@ -3,12 +3,12 @@ pipeline {
     stages {
         stage ('SCM checkout'){
             steps {
-                git "https://github.com/Adamshafi007/FlightBooking.git"
+                git "https://github.com/jaiswalvivek91/Selenium_BDD_Framework.git"
             }
         }
         stage ('CleanUp'){
             steps {
-                dir("C:\\Users\\Admin\\.jenkins\\workspace\\FlightCucumberProject") {
+                dir("C:\\Users\\Bhumika\\.jenkins\\workspace\\Test1") {
                     bat 'mvn clean'
                 }
             }
@@ -16,7 +16,7 @@ pipeline {
 
         stage ('Compile scripts'){
             steps {
-                dir("C:\\Users\\Admin\\.jenkins\\workspace\\FlightCucumberProject") {
+                dir("C:\\Users\\Bhumika\\.jenkins\\workspace\\Test1") {
                     bat 'mvn compile'
                 }
             }
@@ -24,7 +24,7 @@ pipeline {
 
         stage ('Execute Scripts'){
             steps {
-                dir("C:\\Users\\Admin\\.jenkins\\workspace\\FlightCucumberProject") {
+                dir("C:\\Users\\Bhumika\\.jenkins\\workspace\\Test1") {
                     bat 'mvn test'
                 }
             }
@@ -46,7 +46,7 @@ pipeline {
         stage('Archive report') {
             steps{
                 bat "del report.zip"
-                zip zipFile: 'report.zip', archive: false, dir: 'C:\\Users\\Admin\\.jenkins\\workspace\\FlightCucumberProject\\target\\CucumberReport'
+                zip zipFile: 'report.zip', archive: false, dir: 'C:\\Users\\Bhumika\\.jenkins\\workspace\\Test1\\target\\CucumberReport'
             }
         }
     }
@@ -54,17 +54,17 @@ pipeline {
         failure {
             emailext attachmentsPattern: 'report.zip', body: '''${SCRIPT, template="groovy-html.template"}''',
                     subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Failed",
-                    mimeType: 'text/html',to: "shafiadam1710@gmail.com"
+                    mimeType: 'text/html',to: "jaiswalvivek91@gmail.com"
         }
         success {
             emailext attachmentsPattern: 'report.zip', body: '''${SCRIPT, template="groovy-html.template"}''',
                     subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Successful",
-                    mimeType: 'text/html',to: "shafiadam1710@gmail.com"
+                    mimeType: 'text/html',to: "jaiswalvivek91@gmail.com"
         }
         unstable{
             emailext attachmentsPattern: 'report.zip', body: '''${SCRIPT, template="groovy-html.template"}''',
                     subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Unstable",
-                    mimeType: 'text/html',to: "shafiadam1710@gmail.com"
+                    mimeType: 'text/html',to: "jaiswalvivek91@gmail.com"
         }
     }
 }
