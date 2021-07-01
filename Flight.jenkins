@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+    stages {
+        stage ('SCM checkout'){
+            steps {
+                git "https://github.com/Adamshafi007/FlightBooking.git"
+            }
+        }
+        stage ('CleanUp'){
+            steps {
+                dir("C:\\Users\\Admin\\.jenkins\\workspace\\FlightCucumberProject") {
+                    bat 'mvn clean'
+                }
+            }
+        }
+
+        stage ('Compile scripts'){
+            steps {
+                dir("C:\\Users\\Admin\\.jenkins\\workspace\\FlightCucumberProject") {
+                    bat 'mvn compile'
+                }
+            }
+        }
+
+        stage ('Execute Scripts'){
+            steps {
+                dir("C:\\Users\\Admin\\.jenkins\\workspace\\FlightCucumberProject") {
+                    bat 'mvn test'
+                }
+            }
+        }
+        stage('Generate HTML report') {
+            steps {
+                cucumber buildStatus: 'UNSTABLE',
+                        reportTitle: 'My report',
+                        fileIncludePattern: '**/*.json',
+                        trendsLimit: 10,
+                        classifications: [
+                                [
+                                        'key'  : 'Browser',
+                                        'value': 'Firefox'
+                                ]
+                        ]
+            }
+        }
+        stage('Archive report') {
+            steps{
+                bat "del report.zip"
+                zip zipFile: 'report.zip', archive: false, dir: 'C:\\Users\\Admin\\.jenkins\\workspace\\FlightCucumberProject\\target\\CucumberReport'
+            }
+        }
+    }
+    post {
+        failure {
+            emailext attachmentsPattern: 'report.zip', body: '''${SCRIPT, template="groovy-html.template"}''',
+                    subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Failed",
+                    mimeType: 'text/html',to: "shafiadam1710@gmail.com"
+        }
+        success {
+            emailext attachmentsPattern: 'report.zip', body: '''${SCRIPT, template="groovy-html.template"}''',
+                    subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Successful",
+                    mimeType: 'text/html',to: "shafiadam1710@gmail.com"
+        }
+        unstable{
+            emailext attachmentsPattern: 'report.zip', body: '''${SCRIPT, template="groovy-html.template"}''',
+                    subject: "${env.JOB_NAME} - Build # ${env.BUILD_NUMBER} - Unstable",
+                    mimeType: 'text/html',to: "shafiadam1710@gmail.com"
+        }
+    }
+}
